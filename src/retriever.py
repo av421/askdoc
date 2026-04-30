@@ -34,6 +34,29 @@ def get_or_create_collection(chunks: List[Dict], collection_name: str = 'documen
     )
     print(f"Stored {len(chunks)} chunks in collection '{collection_name}'")
 
+def store_chunks(chunks: List[Dict], collection_name: str = "documents"):
+    
+    collection = get_or_create_collection(collection_name)
+
+    ids = [f'chunk_{chunk["chunk_index"]}' for chunk in chunks]
+    embeddings = [chunk['embedding'] for chunk in chunks]
+    documents = [chunk['text'] for chunk in chunks]
+    metadatas = [
+        {
+            'chunk_index': chunk['chunk_index'],
+            'start_char': chunk['start_char'],
+            'end_char': chunk['end_char']
+        }
+        for chunk in chunks
+    ]
+
+    collection.upsert(
+        ids=ids,
+        embeddings=embeddings,
+        documents=documents,
+        metadatas=metadatas
+    )
+    print(f"Stored {len(chunks)} chunks in collection '{collection_name}'")
 
 def retrieve_relevant_chunks(
     query_embedding: List[float],
