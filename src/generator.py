@@ -5,33 +5,38 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 
-def build_prompt(query: str, context: List[str]) -> str:
-    
-    context = '\n\n---\n\n'.join(context_chunks)
-    prompt = f"""You are a helpful assistant that answers questions strictly based on the provided document context.
-    If the answer is not found in the context, respond with "I don't know". Do not provide any information that is not explicitly stated in the provided documents."
+def get_client():
+    api_key = os.getenv('OPENAI_API_KEY')
+    if not api_key:
+        return None
+    return OpenAI(api_key=api_key)
 
-    CONTEXT: 
-    {context}
 
-    QUESTION:
-    {query}
+def build_prompt(query, chunks):
+    context = '\n\n---\n\n'.join(chunks)
+    prompt = f'''You are a helpful assistant that answers questions based strictly on the provided document context.
+If the answer is not found in the context, say "I couldn't find that in the provided documents."
 
-    ANSWER: """
+CONTEXT:
+{context}
 
+QUESTION:
+{query}
+
+ANSWER:'''
     return prompt
 
-def generate_answer(query: str, context_chunks: List[str]) -> str:
 
-    if not os.getenv('OPENAI_API_KEY'):
-        return 'OpenAI API key issue. Please set the OPENAI_API_KEY environment variable.'
-    
-    prompt = build_prompt(query, context_chunks)
+def generate_answer(query, chunks):
+    client = get_client()
+    if not client:
+        return 'OpenAI API key not set. Please add it to your .env file.'
+
+    prompt = build_prompt(query, chunks)
 
     response = client.chat.completions.create(
-        model='gpt-4.0-mini',
+        model='gpt-4o-mini',
         messages=[
             {'role': 'user', 'content': prompt}
         ],
