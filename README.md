@@ -46,7 +46,7 @@ askdoc/
 
 ### 1. Clone the repo
 ```bash
-git clone https://github.com/YOURUSERNAME/askdoc.git
+git clone https://github.com/av421/askdoc.git
 cd askdoc
 ```
 
